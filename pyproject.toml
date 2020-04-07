@@ -2,7 +2,18 @@
 name = "netbox-kickstart-generator"
 version = "0.0.1"
 description = "Generate kickstart files based on the data in netbox."
+license = "MIT"
 authors = ["Igor Raits <igor@gooddata.com>"]
+readme = "README.md"
+homepage = "https://github.com/ignatenkobrain/netbox-kickstart-generator"
+repository = "https://github.com/ignatenkobrain/netbox-kickstart-generator"
+keywords = ["netbox", "kickstart"]
+classifiers = [
+  "Development Status :: 2 - Pre-Alpha",
+  "Framework :: Flask",
+  "Intended Audience :: System Administrators",
+  "Topic :: System :: Installation/Setup",
+]
 
 [tool.poetry.dependencies]
 python = "^3.6"
