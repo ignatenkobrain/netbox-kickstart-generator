@@ -27,3 +27,7 @@ To see the kickstart which would be generated for specific SN, run:
 ```sh
 curl http://127.0.0.1:5000/kickstart -H "X-System-Serial-Number: MXQ7140CHN"
 ```
+
+## Contributing
+
+Make sure to run `black` before each commit to ensure code style.
