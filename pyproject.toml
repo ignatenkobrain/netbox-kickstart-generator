@@ -1,0 +1,14 @@
+[tool.poetry]
+name = "netbox-kickstart-generator"
+version = "0.0.1"
+description = "Generate kickstart files based on the data in netbox."
+authors = ["Igor Raits <igor@gooddata.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.6"
+flask = "^1.1"
+pynetbox = "^4.3.1"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
