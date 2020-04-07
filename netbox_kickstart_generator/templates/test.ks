@@ -22,8 +22,8 @@ rpm -qa
 %end
 
 %post
-{% for interface in interfaces.values() %}
-  {% if interface.lag is none %}
+{% for interface in interfaces.values() if not interface.mgmt_only %}
+  {% if interface.type.value == "lag" %}
     cat > ifcfg-{{ interface.name }} << EOF
 TYPE=Bond
 BONDING_MASTER=yes
@@ -38,7 +38,7 @@ DEVICE={{ interface.name }}.{{ vlan.vid }}
 BRIDGE=br_{{ vlan.name }}
 EOF
     {% endfor %}
-    {% for ip in ips %}
+    {% for ip in ips if interfaces[ip.interface.id].id == interface.id %}
       {% set prefix = prefixes[ip.address] %}
       cat > ifcfg-br_{{ prefix.vlan.name }} << EOF
 DEVICE=br_{{ prefix.vlan.name }}

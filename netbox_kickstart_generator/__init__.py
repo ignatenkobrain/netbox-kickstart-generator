@@ -37,11 +37,7 @@ def create_app():
         return render_template(
             "test.ks",
             device=device,
-            interfaces={
-                i.id: i
-                for i in interfaces
-                if i.lag is not None or i.type.value == "lag"
-            },
+            interfaces={i.id: i for i in interfaces},
             ips=ips,
             prefixes=prefixes,
         )
