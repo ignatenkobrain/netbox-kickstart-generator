@@ -71,7 +71,11 @@ def create_app():
                         ifcfg[bridge]["gateway"] = ipaddr[1]
             else:
                 ifcfg[interface.name].update(
-                    {"type": "Ethernet", "master": interfaces[interface.lag.id].name}
+                    {
+                        "type": "Ethernet",
+                        "master": interfaces[interface.lag.id].name,
+                        "slave": "yes",
+                    }
                 )
         for i, data in ifcfg.items():
             ifcfg[i]["device"] = i
