@@ -33,7 +33,7 @@ def create_app():
                 if interface.untagged_vlan:
                     bridge = f"br_{interface.untagged_vlan.name}"
                     ifcfg[interface.name]["bridge"] = bridge
-                    ifcfg[bridge].update({"type": "Bridge", "stp": "no"})
+                    ifcfg[bridge]["type"] = "Bridge"
                 for vlan in interface.tagged_vlans:
                     bridge = f"br_{vlan.name}"
                     ifcfg[f"{interface.name}.{vlan.vid}"].update(
