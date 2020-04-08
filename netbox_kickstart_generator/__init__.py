@@ -1,3 +1,5 @@
+from collections import defaultdict
+import netaddr
 from flask import Flask, abort, request, render_template
 import pynetbox
 
@@ -18,28 +20,57 @@ def create_app():
             )
         except ValueError:
             abort(409, "Multiple entries with same serial number found")
-        interfaces = nb.dcim.interfaces.filter(device_id=device.id)
+        interfaces = {i.id: i for i in nb.dcim.interfaces.filter(device_id=device.id)}
         ips = nb.ipam.ip_addresses.filter(device_id=device.id)
-        prefixes = {}
-        for ip in ips:
-            prefix = [
-                p
-                for p in nb.ipam.prefixes.filter(
-                    site_id=device.site.id, contains=ip.address
+        ifcfg = defaultdict(dict)
+        for interface in interfaces.values():
+            if interface.mgmt_only:
+                continue
+            if interface.type.value == "lag":
+                if interface.mode.value != "tagged":
+                    raise NotImplementedError("Only tagged LAGs are supported")
+                ifcfg[interface.name].update({"type": "Bond", "mtu": interface.mtu})
+                if interface.untagged_vlan:
+                    bridge = f"br_{interface.untagged_vlan.name}"
+                    ifcfg[interface.name]["bridge"] = bridge
+                    ifcfg[bridge].update({"type": "Bridge", "stp": "no"})
+                for vlan in interface.tagged_vlans:
+                    bridge = f"br_{vlan.name}"
+                    ifcfg[f"{interface.name}.{vlan.vid}"].update(
+                        {"type": "Bond", "mtu": interface.mtu, "bridge": bridge}
+                    )
+                    ifcfg[bridge].update({"type": "Bridge"})
+                # TODO: Add support for multiple IPs on one interface
+                for ip in ips:
+                    if interfaces[ip.interface.id].id != interface.id:
+                        continue
+                    prefixes = [
+                        p
+                        for p in nb.ipam.prefixes.filter(
+                            site_id=device.site.id, contains=ip.address
+                        )
+                        if p.vlan is not None
+                    ]
+                    if len(prefixes) != 1:
+                        raise AssertionError(
+                            f"None or multiple prefixes found for: {ip.address}"
+                        )
+                    prefix = prefixes[0]
+                    ipaddr = netaddr.IPNetwork(ip.address)
+                    bridge = f"br_{prefix.vlan.name}"
+                    ifcfg[bridge].update(
+                        {"ipaddr": ipaddr.ip, "prefix": ipaddr.prefixlen}
+                    )
+                    # FIXME: Probably store this info in netbox?
+                    if prefix.vlan.name == "public":
+                        ifcfg[bridge]["gateway"] = ipaddr[1]
+            else:
+                ifcfg[interface.name].update(
+                    {"type": "Ethernet", "master": interfaces[interface.lag.id].name}
                 )
-                if p.vlan is not None
-            ]
-            if len(prefix) != 1:
-                raise AssertionError(
-                    f"None or multiple prefixes found for: {ip.address}"
-                )
-            prefixes[ip.address] = prefix[0]
-        return render_template(
-            "test.ks",
-            device=device,
-            interfaces={i.id: i for i in interfaces},
-            ips=ips,
-            prefixes=prefixes,
-        )
+        for i, data in ifcfg.items():
+            ifcfg[i]["device"] = i
+
+        return render_template("test.ks", device=device, ifcfg=ifcfg)
 
     return app

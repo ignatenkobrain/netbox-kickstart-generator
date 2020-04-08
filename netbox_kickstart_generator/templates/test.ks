@@ -22,37 +22,14 @@ rpm -qa
 %end
 
 %post
-{% for interface in interfaces.values() if not interface.mgmt_only %}
-  {% if interface.type.value == "lag" %}
-    cat > ifcfg-{{ interface.name }} << EOF
-TYPE=Bond
-BONDING_MASTER=yes
-DEVICE={{ interface.name }}
-BRIDGE=br_{{ interface.untagged_vlan.name }}
-MTU={{ interface.mtu }}
-EOF
-    {% for vlan in interface.tagged_vlans %}
-      cat > ifcfg-{{ interface.name }}.{{ vlan.vid }} << EOF
-VLAN=yes
-DEVICE={{ interface.name }}.{{ vlan.vid }}
-BRIDGE=br_{{ vlan.name }}
-EOF
-    {% endfor %}
-    {% for ip in ips if interfaces[ip.interface.id].id == interface.id %}
-      {% set prefix = prefixes[ip.address] %}
-      cat > ifcfg-br_{{ prefix.vlan.name }} << EOF
-DEVICE=br_{{ prefix.vlan.name }}
-IPADDR={{ ip.address.split('/')[0] }}
-NETMASK={{ ip.address.split('/')[-1] }}
-EOF
-    {% endfor %}
-  {% else %}
-    cat > ifcfg-{{ interface.name }} << EOF
-DEVICE={{ interface.name }}
-MASTER={{ interfaces[interface.lag.id].name }}
-EOF
-  {% endif %}
-{% endfor %}
+# Configure networking
+{% for interface, data in ifcfg.items() -%}
+  cat > /etc/sysconfig/network-scripts/ifcfg-{{ interface }} << EOF
+{% for k, v in data.items() -%}
+  {{ k | upper }}={{ v }}
+{% endfor -%}
+  EOF
+{% endfor -%}
 %end
 
 %packages

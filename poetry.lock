@@ -81,6 +81,14 @@ version = "1.1.1"
 
 [[package]]
 category = "main"
+description = "A network address manipulation library for Python"
+name = "netaddr"
+optional = false
+python-versions = "*"
+version = "0.7.19"
+
+[[package]]
+category = "main"
 description = "NetBox API client library"
 name = "pynetbox"
 optional = false
@@ -143,7 +151,7 @@ dev = ["pytest", "pytest-timeout", "coverage", "tox", "sphinx", "pallets-sphinx-
 watchdog = ["watchdog"]
 
 [metadata]
-content-hash = "e2e91a612c5888069d8447a3cf2bb22693bcffc7a0408f9c068d0c5b292e382c"
+content-hash = "fb8edfcb61ce47702ed4078c48421f1df17f50bc6e31f2537a82f04a1aafaa47"
 python-versions = "^3.6"
 
 [metadata.files]
@@ -209,6 +217,10 @@ markupsafe = [
     {file = "MarkupSafe-1.1.1-cp38-cp38-win32.whl", hash = "sha256:596510de112c685489095da617b5bcbbac7dd6384aeebeda4df6025d0256a81b"},
     {file = "MarkupSafe-1.1.1-cp38-cp38-win_amd64.whl", hash = "sha256:e8313f01ba26fbbe36c7be1966a7b7424942f670f38e666995b88d012765b9be"},
     {file = "MarkupSafe-1.1.1.tar.gz", hash = "sha256:29872e92839765e546828bb7754a68c418d927cd064fd4708fab9fe9c8bb116b"},
+]
+netaddr = [
+    {file = "netaddr-0.7.19-py2.py3-none-any.whl", hash = "sha256:56b3558bd71f3f6999e4c52e349f38660e54a7a8a9943335f73dfc96883e08ca"},
+    {file = "netaddr-0.7.19.tar.gz", hash = "sha256:38aeec7cdd035081d3a4c306394b19d677623bf76fa0913f6695127c7753aefd"},
 ]
 pynetbox = [
     {file = "pynetbox-4.3.1.tar.gz", hash = "sha256:65a2d21eefe45d6253f95a8865e95999682ad9427cd65a747a30e535049874c2"},
