@@ -1,4 +1,3 @@
-#jinja2: lstrip_blocks: True
 lang en_US
 keyboard us
 timezone Europe/Prague --isUtc

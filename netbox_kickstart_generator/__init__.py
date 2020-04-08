@@ -37,7 +37,12 @@ def create_app():
                 for vlan in interface.tagged_vlans:
                     bridge = f"br_{vlan.name}"
                     ifcfg[f"{interface.name}.{vlan.vid}"].update(
-                        {"type": "Bond", "mtu": interface.mtu, "bridge": bridge}
+                        {
+                            "type": "Bond",
+                            "mtu": interface.mtu,
+                            "bridge": bridge,
+                            "vlan": "yes",
+                        }
                     )
                     ifcfg[bridge].update({"type": "Bridge"})
                 # TODO: Add support for multiple IPs on one interface
