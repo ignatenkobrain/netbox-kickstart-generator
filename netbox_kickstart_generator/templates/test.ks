@@ -28,6 +28,12 @@ rpm -qa
 {% for k, v in data.items() -%}
   {{ k | upper }}={{ v }}
 {% endfor -%}
+{# TODO: Move this data to netbox -#}
+{% if data["type"] == "Bond" and "." not in interface -%}
+  BONDING_OPTS="miimon=300 mode=802.3ad"
+{% elif data["type"] == "Bridge" -%}
+  STP=no
+{% endif -%}
   EOF
 {% endfor -%}
 %end
