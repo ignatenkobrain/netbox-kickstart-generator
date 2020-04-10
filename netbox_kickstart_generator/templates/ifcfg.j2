@@ -2,7 +2,7 @@
 {% for interface, data in ifcfg.items() -%}
   cat > /etc/sysconfig/network-scripts/ifcfg-{{ interface }} << EOF
 {% for k, v in data.items() -%}
-  {{ k | upper }}={{ v }}
+  {{ k | upper }}={{ v | string | tojson }}
 {% endfor -%}
   EOF
 {% endfor -%}
