@@ -8,6 +8,7 @@ def create_app():
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_object("netbox_kickstart_generator.default_settings")
     app.config.from_pyfile("config.py", silent=True)
+    app.jinja_options["extensions"].append("jinja2.ext.do")
 
     @app.route("/kickstart")
     @app.route("/kickstart/<kickstart>")

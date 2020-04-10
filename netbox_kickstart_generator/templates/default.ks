@@ -1,3 +1,4 @@
+{% import "ifcfg.j2" as mod_ifcfg -%}
 lang en_US
 keyboard us
 timezone Europe/Prague --isUtc
@@ -23,18 +24,14 @@ rpm -qa
 %post
 # Configure networking
 {% for interface, data in ifcfg.items() -%}
-  cat > /etc/sysconfig/network-scripts/ifcfg-{{ interface }} << EOF
-{% for k, v in data.items() -%}
-  {{ k | upper }}={{ v }}
+  {# TODO: Move this data to netbox -#}
+  {% if data["type"] == "Bond" and "." not in interface -%}
+    {% do data.update({"bonding_opts": "miimon=300 mode=802.3ad"}) -%}
+  {% elif data["type"] == "Bridge" -%}
+    {% do data.update({"stp": "no"}) -%}
+  {% endif -%}
 {% endfor -%}
-{# TODO: Move this data to netbox -#}
-{% if data["type"] == "Bond" and "." not in interface -%}
-  BONDING_OPTS="miimon=300 mode=802.3ad"
-{% elif data["type"] == "Bridge" -%}
-  STP=no
-{% endif -%}
-  EOF
-{% endfor -%}
+{{ mod_ifcfg.write(ifcfg) -}}
 %end
 
 %packages

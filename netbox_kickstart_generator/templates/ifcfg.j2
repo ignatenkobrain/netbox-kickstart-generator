@@ -1,0 +1,9 @@
+{% macro write(ifcfg) -%}
+{% for interface, data in ifcfg.items() -%}
+  cat > /etc/sysconfig/network-scripts/ifcfg-{{ interface }} << EOF
+{% for k, v in data.items() -%}
+  {{ k | upper }}={{ v }}
+{% endfor -%}
+  EOF
+{% endfor -%}
+{% endmacro -%}
