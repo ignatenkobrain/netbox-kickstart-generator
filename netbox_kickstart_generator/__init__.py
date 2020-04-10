@@ -22,29 +22,32 @@ def create_app():
             abort(409, "Multiple entries with same serial number found")
         interfaces = {i.id: i for i in nb.dcim.interfaces.filter(device_id=device.id)}
         ips = nb.ipam.ip_addresses.filter(device_id=device.id)
-        ifcfg = defaultdict(dict)
+        ifcfg = {}
         for interface in interfaces.values():
             if interface.mgmt_only:
                 continue
             if interface.type.value == "lag":
                 if interface.mode.value != "tagged":
                     raise NotImplementedError("Only tagged LAGs are supported")
-                ifcfg[interface.name].update({"type": "Bond", "mtu": interface.mtu})
+                ifcfg[interface.name] = {
+                    "type": "Bond",
+                    "mtu": interface.mtu,
+                    "bonding_master": "yes",
+                }
                 if interface.untagged_vlan:
                     bridge = f"br_{interface.untagged_vlan.name}"
                     ifcfg[interface.name]["bridge"] = bridge
-                    ifcfg[bridge]["type"] = "Bridge"
+                    ifcfg[bridge] = {"type": "Bridge"}
                 for vlan in interface.tagged_vlans:
                     bridge = f"br_{vlan.name}"
-                    ifcfg[f"{interface.name}.{vlan.vid}"].update(
-                        {
-                            "type": "Bond",
-                            "mtu": interface.mtu,
-                            "bridge": bridge,
-                            "vlan": "yes",
-                        }
-                    )
-                    ifcfg[bridge].update({"type": "Bridge"})
+                    ifcfg[f"{interface.name}.{vlan.vid}"] = {
+                        "type": "Vlan",
+                        "physdev": interface.name,
+                        "vlan_id": vlan.vid,
+                        "bridge": bridge,
+                        "vlan": "yes",
+                    }
+                    ifcfg[bridge] = {"type": "Bridge"}
                 # TODO: Add support for multiple IPs on one interface
                 for ip in ips:
                     if interfaces[ip.interface.id].id != interface.id:
@@ -70,15 +73,13 @@ def create_app():
                     if prefix.vlan.name == "public":
                         ifcfg[bridge]["gateway"] = ipaddr[1]
             else:
-                ifcfg[interface.name].update(
-                    {
-                        "type": "Ethernet",
-                        "master": interfaces[interface.lag.id].name,
-                        "slave": "yes",
-                    }
-                )
+                ifcfg[interface.name] = {
+                    "type": "Ethernet",
+                    "master": interfaces[interface.lag.id].name,
+                    "slave": "yes",
+                }
         for i, data in ifcfg.items():
-            ifcfg[i]["device"] = i
+            ifcfg[i].update({"device": i, "name": i, "onboot": "yes"})
 
         return render_template("test.ks", device=device, ifcfg=ifcfg)
 
