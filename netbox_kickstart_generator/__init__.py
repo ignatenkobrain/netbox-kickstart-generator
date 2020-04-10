@@ -10,7 +10,8 @@ def create_app():
     app.config.from_pyfile("config.py", silent=True)
 
     @app.route("/kickstart")
-    def kickstart():
+    @app.route("/kickstart/<kickstart>")
+    def kickstart(kickstart="default"):
         if "X-System-Serial-Number" not in request.headers:
             abort(400, "No Serial Number")
         nb = pynetbox.api(app.config["NETBOX_URL"], token=app.config["NETBOX_TOKEN"])
@@ -81,6 +82,9 @@ def create_app():
         for i, data in ifcfg.items():
             ifcfg[i].update({"device": i, "name": i, "onboot": "yes"})
 
-        return render_template("test.ks", device=device, ifcfg=ifcfg)
+        try:
+            return render_template(f"{kickstart}.ks", device=device, ifcfg=ifcfg)
+        except jinja2.exceptions.TemplateNotFound:
+            abort(404, "Template not found")
 
     return app
