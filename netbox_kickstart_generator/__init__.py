@@ -1,6 +1,7 @@
 from collections import defaultdict
 import netaddr
 from flask import Flask, abort, request, render_template
+from flask.templating import TemplateNotFound
 import pynetbox
 
 
@@ -85,7 +86,7 @@ def create_app():
 
         try:
             return render_template(f"{kickstart}.ks", device=device, ifcfg=ifcfg)
-        except jinja2.exceptions.TemplateNotFound:
+        except TemplateNotFound:
             abort(404, "Template not found")
 
     return app
