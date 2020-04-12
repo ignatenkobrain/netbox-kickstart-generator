@@ -25,7 +25,7 @@ rpm -qa
 # Configure networking
 {% for interface, data in ifcfg.items() -%}
   {# TODO: Move this data to netbox -#}
-  {% if data["type"] == "Bond" and "." not in interface -%}
+  {% if data["type"] == "Bond" -%}
     {% do data.update({"bonding_opts": "miimon=300 mode=802.3ad"}) -%}
   {% elif data["type"] == "Bridge" -%}
     {% do data.update({"stp": "no"}) -%}
