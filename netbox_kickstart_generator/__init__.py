@@ -42,15 +42,12 @@ def create_app():
                     ifcfg[interface.name]["bridge"] = bridge
                     ifcfg[bridge] = {"type": "Bridge"}
                 for vlan in interface.tagged_vlans:
-                    bridge = f"br_{vlan.name}"
                     ifcfg[f"{interface.name}.{vlan.vid}"] = {
                         "type": "Vlan",
                         "physdev": interface.name,
                         "vlan_id": vlan.vid,
-                        "bridge": bridge,
                         "vlan": "yes",
                     }
-                    ifcfg[bridge] = {"type": "Bridge"}
                 # TODO: Add support for multiple IPs on one interface
                 for ip in ips:
                     if interfaces[ip.interface.id].id != interface.id:
@@ -69,9 +66,12 @@ def create_app():
                     prefix = prefixes[0]
                     ipaddr = netaddr.IPNetwork(ip.address)
                     bridge = f"br_{prefix.vlan.name}"
-                    ifcfg[bridge].update(
-                        {"ipaddr": ipaddr.ip, "prefix": ipaddr.prefixlen}
-                    )
+                    ifcfg[bridge] = {
+                        "type": "Bridge",
+                        "ipaddr": ipaddr.ip,
+                        "prefix": ipaddr.prefixlen,
+                    }
+                    ifcfg[f"{interface.name}.{prefix.vlan.vid}"]["bridge"] = bridge
                     # FIXME: Probably store this info in netbox?
                     if prefix.vlan.name == "public":
                         ifcfg[bridge]["gateway"] = ipaddr[1]
