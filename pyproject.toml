@@ -18,7 +18,7 @@ classifiers = [
 [tool.poetry.dependencies]
 python = "^3.6"
 flask = "^1.1"
-pynetbox = "^4.3.1"
+pynetbox = "^5"
 netaddr = "^0.7.18"
 
 [tool.black]
