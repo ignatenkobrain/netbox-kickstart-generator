@@ -50,7 +50,7 @@ def create_app():
                     }
                 # TODO: Add support for multiple IPs on one interface
                 for ip in ips:
-                    if interfaces[ip.interface.id].id != interface.id:
+                    if interfaces[ip.assigned_object.id].id != interface.id:
                         continue
                     prefixes = [
                         p
