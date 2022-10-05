@@ -23,6 +23,7 @@ def create_app():
             )
         except ValueError:
             abort(409, "Multiple entries with same serial number found")
+        device_type = nb.dcim.device_types.get(id=device.device_type.id)
         interfaces = {i.id: i for i in nb.dcim.interfaces.filter(device_id=device.id)}
         ips = nb.ipam.ip_addresses.filter(device_id=device.id)
         ifcfg = {}
@@ -85,7 +86,7 @@ def create_app():
             ifcfg[i].update({"device": i, "name": i, "onboot": "yes"})
 
         try:
-            return render_template(f"{kickstart}.ks", device=device, ifcfg=ifcfg)
+            return render_template(f"{kickstart}.ks", device=device, device_type=device_type, ifcfg=ifcfg)
         except TemplateNotFound:
             abort(404, "Template not found")
 
