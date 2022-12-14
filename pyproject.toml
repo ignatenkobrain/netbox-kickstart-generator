@@ -17,12 +17,12 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^3.6"
-flask = "^1.1"
-pynetbox = "^5"
-netaddr = "^0.7.18"
+flask = "^2.0.3"
+pynetbox = "^6"
+netaddr = "^0.8"
 
 [tool.black]
-target-version = ["py36", "py37", "py38"]
+target-version = ["py36", "py37", "py38", "py39", "py310"]
 
 [build-system]
 requires = ["poetry>=0.12"]
